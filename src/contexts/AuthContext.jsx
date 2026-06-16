@@ -29,6 +29,12 @@ export const AuthProvider = ({ children }) => {
     const login = (userData) => {
         setUser(userData);
         localStorage.setItem('complyUser', JSON.stringify(userData));
+        // Ensure user is persisted in the accounts list (for admin customer view)
+        const users = JSON.parse(localStorage.getItem('complyUsers') || '[]');
+        const exists = users.find((u) => u.email === userData.email);
+        if (!exists) {
+            localStorage.setItem('complyUsers', JSON.stringify([...users, userData]));
+        }
     };
 
     const register = (userData) => {
@@ -87,6 +93,30 @@ export const AuthProvider = ({ children }) => {
         const updated = { ...user, ...updates };
         setUser(updated);
         localStorage.setItem('complyUser', JSON.stringify(updated));
+        // Keep complyUsers in sync
+        const users = JSON.parse(localStorage.getItem('complyUsers') || '[]');
+        const updatedUsers = users.map((u) => u.id === updated.id ? { ...u, ...updates } : u);
+        localStorage.setItem('complyUsers', JSON.stringify(updatedUsers));
+    };
+
+    /** Admin utility: set a new password for any customer by id. */
+    const adminResetCustomerPassword = (customerId, newPassword) => {
+        const users = JSON.parse(localStorage.getItem('complyUsers') || '[]');
+        const updated = users.map((u) => String(u.id) === String(customerId) ? { ...u, password: newPassword } : u);
+        localStorage.setItem('complyUsers', JSON.stringify(updated));
+    };
+
+    /** Admin utility: update profile details for any customer by id. */
+    const adminUpdateCustomer = (customerId, updates) => {
+        const users = JSON.parse(localStorage.getItem('complyUsers') || '[]');
+        const updated = users.map((u) => String(u.id) === String(customerId) ? { ...u, ...updates } : u);
+        localStorage.setItem('complyUsers', JSON.stringify(updated));
+        // Keep active session in sync if admin edits the logged-in user
+        if (user && String(user.id) === String(customerId)) {
+            const refreshed = { ...user, ...updates };
+            setUser(refreshed);
+            localStorage.setItem('complyUser', JSON.stringify(refreshed));
+        }
     };
 
     const refreshOrders = () => {
@@ -97,7 +127,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, orders, login, register, logout, addOrder, updateOrderStatus, updateProfile, refreshOrders }}>
+        <AuthContext.Provider value={{ user, orders, login, register, logout, addOrder, updateOrderStatus, updateProfile, adminResetCustomerPassword, adminUpdateCustomer, refreshOrders }}>
             {children}
         </AuthContext.Provider>
     );

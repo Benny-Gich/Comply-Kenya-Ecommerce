@@ -29,7 +29,7 @@ const Register = () => {
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
         setLoading(true);
         setTimeout(() => {
-            register({ name: form.name, email: form.email, phone: form.phone });
+            register({ name: form.name, email: form.email, phone: form.phone, password: form.password });
             toast.success('Account created! Welcome to Comply Kenya.');
             navigate('/account');
             setLoading(false);

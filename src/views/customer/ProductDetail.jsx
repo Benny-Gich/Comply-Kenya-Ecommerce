@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiStar, FiCheck, FiPackage, FiTruck } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { getProductById, PRODUCTS } from '../../models/products.model';
+import { getProductById, getProducts } from '../../models/products.model';
 import { useCart } from '../../contexts/CartContext';
 import ProductCard from '../../components/Products/ProductCard';
 import toast from 'react-hot-toast';
@@ -26,7 +26,7 @@ const ProductDetail = () => {
         );
     }
 
-    const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+    const related = getProducts().filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 
     const handleAddToCart = () => {
         addToCart(product, quantity);

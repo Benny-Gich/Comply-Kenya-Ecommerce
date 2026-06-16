@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import useAdminOrders from '../../viewModels/useOrdersViewModel';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     FiUsers, FiSearch, FiUser, FiShoppingBag, FiArrowLeft, FiMail,
-    FiPhone, FiCalendar, FiTag, FiArrowRight,
+    FiPhone, FiCalendar, FiTag, FiArrowRight, FiLock, FiEye, FiEyeOff, FiX, FiEdit2,
 } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const STATUS_COLORS = {
     pending: 'bg-yellow-100 text-yellow-800',
@@ -27,13 +29,180 @@ const segment = (totalSpent, orderCount) => {
     return { label: 'New', color: 'bg-purple-100 text-purple-700' };
 };
 
+// ─────────────────────────────── Edit Customer Modal ───────────────────────
+
+const EditCustomerModal = ({ customer, onClose, onSaved }) => {
+    const { adminUpdateCustomer } = useAuth();
+    const [form, setForm] = useState({ name: customer.name || '', email: customer.email || '', phone: customer.phone || '' });
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        const e = {};
+        if (!form.name.trim()) e.name = 'Name is required.';
+        if (!form.email.trim()) e.email = 'Email is required.';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email.';
+        return e;
+    };
+
+    const handleChange = (field) => (e) => {
+        setForm((prev) => ({ ...prev, [field]: e.target.value }));
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const e2 = validate();
+        if (Object.keys(e2).length) { setErrors(e2); return; }
+        adminUpdateCustomer(customer.id, { name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim() });
+        toast.success('Customer details updated.');
+        onSaved();
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-800">Edit Customer</h2>
+                        <p className="text-sm text-gray-500 mt-0.5">Update details for <span className="font-medium text-gray-700">{customer.name}</span></p>
+                    </div>
+                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"><FiX size={18} /></button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <div className="relative">
+                            <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                            <input
+                                type="text"
+                                className={`w-full border rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30 ${errors.name ? 'border-red-400' : 'border-gray-200'}`}
+                                placeholder="Customer name"
+                                value={form.name}
+                                onChange={handleChange('name')}
+                            />
+                        </div>
+                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <div className="relative">
+                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                            <input
+                                type="email"
+                                className={`w-full border rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30 ${errors.email ? 'border-red-400' : 'border-gray-200'}`}
+                                placeholder="email@example.com"
+                                value={form.email}
+                                onChange={handleChange('email')}
+                            />
+                        </div>
+                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-gray-400 font-normal">(optional)</span></label>
+                        <div className="relative">
+                            <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                            <input
+                                type="tel"
+                                className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30"
+                                placeholder="e.g. 0712 345 678"
+                                value={form.phone}
+                                onChange={handleChange('phone')}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex gap-3 pt-1">
+                        <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button type="submit" className="flex-1 px-4 py-2 bg-primary-green text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+// ─────────────────────────────── Reset Password Modal ───────────────────────
+
+const ResetPasswordModal = ({ customer, onClose }) => {
+    const { adminResetCustomerPassword } = useAuth();
+    const [newPassword, setNewPassword] = useState('');
+    const [confirm, setConfirm] = useState('');
+    const [showPw, setShowPw] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (newPassword.length < 8) { setError('Password must be at least 8 characters.'); return; }
+        if (newPassword !== confirm) { setError('Passwords do not match.'); return; }
+        adminResetCustomerPassword(customer.id, newPassword);
+        toast.success(`Password reset for ${customer.name}`);
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-800">Reset Password</h2>
+                        <p className="text-sm text-gray-500 mt-0.5">Set a new password for <span className="font-medium text-gray-700">{customer.name}</span></p>
+                    </div>
+                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"><FiX size={18} /></button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                        <div className="relative">
+                            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                            <input
+                                type={showPw ? 'text' : 'password'}
+                                className="w-full border border-gray-200 rounded-lg pl-9 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30"
+                                placeholder="Min. 8 characters"
+                                value={newPassword}
+                                onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
+                            />
+                            <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                {showPw ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <div className="relative">
+                            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                            <input
+                                type={showPw ? 'text' : 'password'}
+                                className="w-full border border-gray-200 rounded-lg pl-9 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30"
+                                placeholder="Repeat new password"
+                                value={confirm}
+                                onChange={(e) => { setConfirm(e.target.value); setError(''); }}
+                            />
+                        </div>
+                    </div>
+                    {error && <p className="text-red-500 text-xs">{error}</p>}
+                    <div className="flex gap-3 pt-1">
+                        <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button type="submit" className="flex-1 px-4 py-2 bg-primary-green text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">Reset Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 // ─────────────────────────────── Customer Detail ────────────────────────────
 
 const CustomerDetail = () => {
     const { id } = useParams();
     const { orders } = useAdminOrders();
+    const [resetTarget, setResetTarget] = useState(null);
+    const [editTarget, setEditTarget] = useState(null);
+    const [customers, setCustomers] = useState(() => readCustomers());
 
-    const customers = readCustomers();
+    const refreshCustomers = () => setCustomers(readCustomers());
+
     const customer = customers.find((c) => String(c.id) === String(id));
     const customerOrders = orders.filter((o) => String(o.userId) === String(id));
     const totalSpent = customerOrders.filter((o) => o.status !== 'cancelled').reduce((s, o) => s + (o.total || 0), 0);
@@ -72,6 +241,20 @@ const CustomerDetail = () => {
                         <span className="flex items-center gap-1.5"><FiMail size={13} />{customer.email}</span>
                         {customer.phone && <span className="flex items-center gap-1.5"><FiPhone size={13} />{customer.phone}</span>}
                         <span className="flex items-center gap-1.5"><FiCalendar size={13} />Joined {formatDate(customer.createdAt)}</span>
+                    </div>
+                    <div className="mt-3 flex items-center gap-2">
+                        <button
+                            onClick={() => setEditTarget(customer)}
+                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 border border-gray-200 rounded-lg text-gray-600 hover:border-primary-green hover:text-primary-green transition-colors"
+                        >
+                            <FiEdit2 size={12} /> Edit Details
+                        </button>
+                        <button
+                            onClick={() => setResetTarget(customer)}
+                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 border border-gray-200 rounded-lg text-gray-600 hover:border-primary-green hover:text-primary-green transition-colors"
+                        >
+                            <FiLock size={12} /> Reset Password
+                        </button>
                     </div>
                 </div>
                 <div className="flex gap-6">
@@ -137,6 +320,9 @@ const CustomerDetail = () => {
                     </div>
                 )}
             </div>
+
+            {resetTarget && <ResetPasswordModal customer={resetTarget} onClose={() => setResetTarget(null)} />}
+            {editTarget && <EditCustomerModal customer={editTarget} onClose={() => setEditTarget(null)} onSaved={refreshCustomers} />}
         </div>
     );
 };
@@ -147,8 +333,20 @@ const AdminCustomers = () => {
     const { orders } = useAdminOrders();
     const [search, setSearch] = useState('');
     const [segmentFilter, setSegmentFilter] = useState('all');
+    const [customers, setCustomers] = useState(() => readCustomers());
+    const [resetTarget, setResetTarget] = useState(null);
+    const [editTarget, setEditTarget] = useState(null);
 
-    const customers = readCustomers();
+    // Refresh customer list when localStorage changes (e.g. after a login in another tab)
+    useEffect(() => {
+        const handle = (e) => {
+            if (e.key === 'complyUsers') setCustomers(readCustomers());
+        };
+        window.addEventListener('storage', handle);
+        // Also refresh once on mount in case customers logged in same tab
+        setCustomers(readCustomers());
+        return () => window.removeEventListener('storage', handle);
+    }, []);
 
     const enriched = useMemo(() => customers.map((c) => {
         const co = orders.filter((o) => String(o.userId) === String(c.id));
@@ -156,7 +354,7 @@ const AdminCustomers = () => {
         const seg = segment(spent, co.length);
         const lastOrder = co.length > 0 ? co.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] : null;
         return { ...c, orderCount: co.length, totalSpent: spent, segment: seg, lastOrder };
-    }), [customers, orders]); // eslint-disable-line react-hooks/exhaustive-deps
+    }), [customers, orders]);
 
     const filtered = enriched.filter((c) => {
         const q = search.toLowerCase();
@@ -267,9 +465,25 @@ const AdminCustomers = () => {
                                         </td>
                                         <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(c.createdAt)}</td>
                                         <td className="px-6 py-4 text-right">
-                                            <Link to={`/admin/customers/${c.id}`} className="text-xs text-primary-green hover:underline flex items-center gap-1 justify-end">
-                                                View <FiArrowRight size={11} />
-                                            </Link>
+                                            <div className="flex items-center justify-end gap-3">
+                                                <button
+                                                    onClick={() => setEditTarget(c)}
+                                                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary-green transition-colors"
+                                                    title="Edit customer"
+                                                >
+                                                    <FiEdit2 size={12} /> Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => setResetTarget(c)}
+                                                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary-green transition-colors"
+                                                    title="Reset password"
+                                                >
+                                                    <FiLock size={12} /> Reset
+                                                </button>
+                                                <Link to={`/admin/customers/${c.id}`} className="text-xs text-primary-green hover:underline flex items-center gap-1">
+                                                    View <FiArrowRight size={11} />
+                                                </Link>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -279,6 +493,8 @@ const AdminCustomers = () => {
                 )}
             </div>
             <p className="text-xs text-gray-400 text-right">{filtered.length} of {customers.length} customers shown</p>
+            {resetTarget && <ResetPasswordModal customer={resetTarget} onClose={() => { setResetTarget(null); setCustomers(readCustomers()); }} />}
+            {editTarget && <EditCustomerModal customer={editTarget} onClose={() => setEditTarget(null)} onSaved={() => setCustomers(readCustomers())} />}
         </div>
     );
 };

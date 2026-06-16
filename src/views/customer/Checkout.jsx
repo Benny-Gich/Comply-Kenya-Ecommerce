@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FiCheck, FiLock } from 'react-icons/fi';
+import { FiCheck, FiLock, FiSmartphone, FiXCircle } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -21,6 +21,13 @@ const Checkout = () => {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // M-Pesa STK push state
+  const [stkState, setStkState] = useState(null); // null | 'waiting' | 'success' | 'failed'
+  const [checkoutRequestId, setCheckoutRequestId] = useState(null);
+  const [stkError, setStkError] = useState('');
+  const pollRef = useRef(null);
+  const timeoutRef = useRef(null);
+
   const [shipping, setShipping] = useState({
     firstName: user?.name?.split(' ')[0] || '',
     lastName: user?.name?.split(' ')[1] || '',
@@ -37,15 +44,6 @@ const Checkout = () => {
   const delivery = total >= 10000 ? 0 : 500;
   const grandTotal = total + delivery;
 
-  if (cart.length === 0) {
-    return (
-      <div className="container-custom py-20 text-center">
-        <p className="text-gray-500 mb-4">Your cart is empty.</p>
-        <Link to="/products" className="btn-primary">Continue Shopping</Link>
-      </div>
-    );
-  }
-
   const handleShippingSubmit = (e) => {
     e.preventDefault();
     setStep(1);
@@ -56,26 +54,154 @@ const Checkout = () => {
     setStep(2);
   };
 
-  const handlePlaceOrder = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const order = addOrder({
-        items: cart,
-        shipping,
-        payment,
-        subtotal: total,
-        delivery,
-        total: grandTotal,
-      });
-      clearCart();
-      setLoading(false);
-      toast.success('Order placed successfully!');
-      navigate(`/orders/${order.id}/track`);
-    }, 1800);
+  const placeOrderNow = (extraPaymentData = {}) => {
+    const order = addOrder({
+      items: cart,
+      shipping,
+      payment: { ...payment, ...extraPaymentData },
+      subtotal: total,
+      delivery,
+      total: grandTotal,
+    });
+    clearCart();
+    toast.success('Order placed successfully!');
+    navigate(`/orders/${order.id}/track`);
   };
+
+  const stopPolling = () => {
+    clearInterval(pollRef.current);
+    clearTimeout(timeoutRef.current);
+  };
+
+  const cancelMpesaPayment = () => {
+    stopPolling();
+    setStkState(null);
+    setCheckoutRequestId(null);
+    setStkError('');
+  };
+
+  // Poll backend for STK push result
+  useEffect(() => {
+    if (!checkoutRequestId || stkState !== 'waiting') return;
+
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/payments/mpesa/status/${checkoutRequestId}`);
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          stopPolling();
+          setStkState('success');
+          placeOrderNow({ mpesaReceiptNumber: data.mpesaReceiptNumber, mpesaPhone: data.phone });
+        } else if (data.status === 'failed') {
+          stopPolling();
+          setStkState('failed');
+          setStkError(data.message || 'Payment was cancelled or failed.');
+        }
+      } catch {
+        // network hiccup – keep polling
+      }
+    }, 3000);
+
+    // Timeout after 2 minutes
+    timeoutRef.current = setTimeout(() => {
+      stopPolling();
+      setStkState('failed');
+      setStkError('Payment timed out. Please try again.');
+    }, 120000);
+
+    return stopPolling;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutRequestId, stkState]);
+
+  const handlePlaceOrder = async () => {
+    if (payment.method === 'mpesa') {
+      setLoading(true);
+      setStkError('');
+      try {
+        const res = await fetch('/api/payments/mpesa/stkpush', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: payment.mpesaPhone,
+            amount: grandTotal,
+            accountRef: 'ComplyKenya',
+          }),
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          toast.error(data.message || 'Failed to send STK push.');
+          setLoading(false);
+          return;
+        }
+
+        setCheckoutRequestId(data.checkoutRequestId);
+        setStkState('waiting');
+        toast.success('Check your phone and enter your M-Pesa PIN.');
+      } catch {
+        toast.error('Could not reach payment server. Is the backend running?');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Non-Mpesa path
+      setLoading(true);
+      setTimeout(() => {
+        placeOrderNow();
+        setLoading(false);
+      }, 800);
+    }
+  };
+
+  if (cart.length === 0) {
+    return (
+      <div className="container-custom py-20 text-center">
+        <p className="text-gray-500 mb-4">Your cart is empty.</p>
+        <Link to="/products" className="btn-primary">Continue Shopping</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="container-custom py-10">
+
+      {/* M-Pesa waiting overlay */}
+      {stkState === 'waiting' && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiSmartphone className="text-3xl text-primary-green" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Waiting for M-Pesa</h3>
+            <p className="text-gray-600 text-sm mb-1">
+              An STK push was sent to <span className="font-semibold">{payment.mpesaPhone}</span>.
+            </p>
+            <p className="text-gray-500 text-sm mb-6">Enter your M-Pesa PIN on your phone to complete the payment of <span className="font-bold text-primary-green">KES {grandTotal.toLocaleString()}</span>.</p>
+            <div className="flex justify-center mb-6">
+              <div className="w-8 h-8 border-4 border-primary-green border-t-transparent rounded-full animate-spin" />
+            </div>
+            <button
+              onClick={cancelMpesaPayment}
+              className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1 mx-auto"
+            >
+              <FiXCircle /> Cancel payment
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* M-Pesa failure overlay */}
+      {stkState === 'failed' && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <FiXCircle className="text-5xl text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Payment Failed</h3>
+            <p className="text-gray-600 text-sm mb-6">{stkError || 'Your M-Pesa payment was not completed.'}</p>
+            <button onClick={cancelMpesaPayment} className="btn-primary w-full">Try Again</button>
+          </div>
+        </div>
+      )}
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
 
       {/* Step indicator */}
@@ -84,7 +210,7 @@ const Checkout = () => {
           <React.Fragment key={s}>
             <div className="flex items-center gap-2">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${i < step ? 'bg-primary-green text-white' :
-                  i === step ? 'bg-primary-green text-white' : 'bg-gray-200 text-gray-500'
+                i === step ? 'bg-primary-green text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                 {i < step ? <FiCheck /> : i + 1}
               </div>

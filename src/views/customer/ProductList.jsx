@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FiFilter, FiGrid, FiList, FiX } from 'react-icons/fi';
-import { PRODUCTS, CATEGORIES } from '../../models/products.model';
+import { getProducts, CATEGORIES } from '../../models/products.model';
 import ProductCard from '../../components/Products/ProductCard';
 
 const SORT_OPTIONS = [
@@ -31,7 +31,7 @@ const ProductList = () => {
     }, [categoryParam]);
 
     const filtered = useMemo(() => {
-        let result = [...PRODUCTS];
+        let result = [...getProducts()];
 
         if (searchQuery) {
             const q = searchQuery.toLowerCase();

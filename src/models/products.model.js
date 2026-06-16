@@ -15,10 +15,10 @@ export const PRODUCTS = [
         categoryName: 'MDF Boards',
         price: 2500,
         originalPrice: 3000,
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
+        image: 'https://cdn.pixabay.com/photo/2015/05/31/13/36/laminated-791794_1280.jpg',
         images: [
-            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=500&fit=crop',
-            'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=500&fit=crop',
+            'https://cdn.pixabay.com/photo/2015/05/31/13/36/laminated-791794_1280.jpg',
+            'https://cdn.pixabay.com/photo/2015/05/31/13/36/laminated-791795_640.jpg',
         ],
         rating: 4.5,
         reviewCount: 42,
@@ -41,8 +41,8 @@ export const PRODUCTS = [
         category: 'mdf-boards',
         categoryName: 'MDF Boards',
         price: 1800,
-        image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=500&fit=crop'],
+        image: 'https://cdn.pixabay.com/photo/2015/05/31/13/36/laminated-791795_640.jpg',
+        images: ['https://cdn.pixabay.com/photo/2015/05/31/13/36/laminated-791795_640.jpg'],
         rating: 4.3,
         reviewCount: 28,
         inStock: true,
@@ -64,8 +64,8 @@ export const PRODUCTS = [
         category: 'plywood',
         categoryName: 'Plywood',
         price: 3500,
-        image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&h=500&fit=crop'],
+        image: 'https://s.alicdn.com/@sc04/kf/H70d9c2a872a041e08de51cb7b5b049d53.jpg_300x300.jpg',
+        images: ['https://s.alicdn.com/@sc04/kf/H70d9c2a872a041e08de51cb7b5b049d53.jpg_300x300.jpg'],
         rating: 4.8,
         reviewCount: 67,
         inStock: true,
@@ -87,8 +87,8 @@ export const PRODUCTS = [
         category: 'plywood',
         categoryName: 'Plywood',
         price: 2800,
-        image: 'https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=600&h=500&fit=crop'],
+        image: 'https://s.alicdn.com/@sc04/kf/H98ec508d7b9446f88d6a0b5ab1ade1a91.jpg_300x300.jpg',
+        images: ['https://s.alicdn.com/@sc04/kf/H98ec508d7b9446f88d6a0b5ab1ade1a91.jpg_300x300.jpg'],
         rating: 4.7,
         reviewCount: 35,
         inStock: true,
@@ -110,8 +110,8 @@ export const PRODUCTS = [
         categoryName: 'Doors',
         price: 8500,
         originalPrice: 10000,
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=500&fit=crop'],
+        image: 'https://sharonply.com/wp-content/uploads/2025/09/Pre-Laminated-vs-Laminated-Boards-1024x530.jpg',
+        images: ['https://sharonply.com/wp-content/uploads/2025/09/Pre-Laminated-vs-Laminated-Boards-1024x530.jpg'],
         rating: 4.7,
         reviewCount: 53,
         inStock: true,
@@ -133,8 +133,8 @@ export const PRODUCTS = [
         category: 'doors',
         categoryName: 'Doors',
         price: 15000,
-        image: 'https://images.unsplash.com/photo-1567016432779-094069958ea5?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&h=500&fit=crop'],
+        image: 'https://s.alicdn.com/@sc04/kf/Haddd906f8cc84fdb85d10b7f049259a8Q.jpg_300x300.jpg',
+        images: ['https://s.alicdn.com/@sc04/kf/Haddd906f8cc84fdb85d10b7f049259a8Q.jpg_300x300.jpg'],
         rating: 4.9,
         reviewCount: 21,
         inStock: true,
@@ -156,8 +156,8 @@ export const PRODUCTS = [
         category: 'flooring',
         categoryName: 'Flooring',
         price: 1200,
-        image: 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=600&h=500&fit=crop'],
+        image: 'https://t4.ftcdn.net/jpg/12/51/11/75/360_F_1251117545_rMTeb4gPXSUFRP9yvQ8BEwCmjXG5MR3b.jpg',
+        images: ['https://t4.ftcdn.net/jpg/12/51/11/75/360_F_1251117545_rMTeb4gPXSUFRP9yvQ8BEwCmjXG5MR3b.jpg'],
         rating: 4.6,
         reviewCount: 89,
         inStock: true,
@@ -180,8 +180,8 @@ export const PRODUCTS = [
         categoryName: 'Flooring',
         price: 950,
         originalPrice: 1100,
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=500&fit=crop'],
+        image: 'https://s.alicdn.com/@sc04/kf/H5a46474329a74e73a7f1541257a9a160b.jpg_300x300.jpg',
+        images: ['https://s.alicdn.com/@sc04/kf/H5a46474329a74e73a7f1541257a9a160b.jpg_300x300.jpg'],
         rating: 4.4,
         reviewCount: 44,
         inStock: true,
@@ -203,8 +203,8 @@ export const PRODUCTS = [
         category: 'timber',
         categoryName: 'Timber',
         price: 850,
-        image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=500&fit=crop'],
+        image: 'https://s.alicdn.com/@sc04/kf/Hdc3df8082b1742d8af552e9b19af627fF.jpg_300x300.jpg',
+        images: ['https://s.alicdn.com/@sc04/kf/Hdc3df8082b1742d8af552e9b19af627fF.jpg_300x300.jpg'],
         rating: 4.5,
         reviewCount: 18,
         inStock: true,
@@ -225,8 +225,8 @@ export const PRODUCTS = [
         category: 'hardware',
         categoryName: 'Hardware',
         price: 450,
-        image: 'https://images.unsplash.com/photo-1609659905049-55f9ed73d3f6?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1609659905049-55f9ed73d3f6?w=600&h=500&fit=crop'],
+        image: 'https://media.istockphoto.com/id/530948676/photo/mdf-wood-boards.jpg?s=612x612&w=0&k=20&c=0oVZHMf7aDcgymNdN4SwxSVeWCs17ZW8aC3RrrOfLPc=',
+        images: ['https://media.istockphoto.com/id/530948676/photo/mdf-wood-boards.jpg?s=612x612&w=0&k=20&c=0oVZHMf7aDcgymNdN4SwxSVeWCs17ZW8aC3RrrOfLPc='],
         rating: 4.6,
         reviewCount: 112,
         inStock: true,
@@ -248,8 +248,8 @@ export const PRODUCTS = [
         category: 'hardware',
         categoryName: 'Hardware',
         price: 680,
-        image: 'https://images.unsplash.com/photo-1609659905049-55f9ed73d3f6?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1609659905049-55f9ed73d3f6?w=600&h=500&fit=crop'],
+        image: 'https://media.istockphoto.com/id/1307050831/photo/samples-of-laminated-board-and-mdf-construction-or-furniture-finishing-design-concept.jpg?s=612x612&w=0&k=20&c=xHZ2i4Uox0oPeET02wESgL0nVvAGzYsGYWppuJF8U=',
+        images: ['https://media.istockphoto.com/id/1307050831/photo/samples-of-laminated-board-and-mdf-construction-or-furniture-finishing-design-concept.jpg?s=612x612&w=0&k=20&c=xHZ2i4Uox0oPeET02wESgL0nVvAGzYsGYWppuJF8U='],
         rating: 4.7,
         reviewCount: 76,
         inStock: false,
@@ -271,8 +271,8 @@ export const PRODUCTS = [
         category: 'mdf-boards',
         categoryName: 'MDF Boards',
         price: 3200,
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
-        images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=500&fit=crop'],
+        image: 'https://www.starbank-uk.com/umoartol/2021/09/STARlite-Bonding-Line-1000x559.jpg',
+        images: ['https://www.starbank-uk.com/umoartol/2021/09/STARlite-Bonding-Line-1000x559.jpg'],
         rating: 4.6,
         reviewCount: 31,
         inStock: true,
@@ -290,19 +290,41 @@ export const PRODUCTS = [
     },
 ];
 
-export const getFeaturedProducts = () => PRODUCTS.filter((p) => p.featured);
+const STORAGE_KEY = 'complyAdminProducts';
+const PRODUCTS_VERSION = '2'; // bump this whenever PRODUCTS images/data are updated
+const VERSION_KEY = 'complyProductsVersion';
 
-export const getProductById = (id) => PRODUCTS.find((p) => p.id === Number(id));
+const getLiveProducts = () => {
+    try {
+        const storedVersion = localStorage.getItem(VERSION_KEY);
+        if (storedVersion !== PRODUCTS_VERSION) {
+            // Seed data has been updated — clear stale cache so new images are shown
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.setItem(VERSION_KEY, PRODUCTS_VERSION);
+            return PRODUCTS;
+        }
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : PRODUCTS;
+    } catch {
+        return PRODUCTS;
+    }
+};
+
+export const getFeaturedProducts = () => getLiveProducts().filter((p) => p.featured);
+
+export const getProductById = (id) => getLiveProducts().find((p) => p.id === Number(id));
 
 export const getProductsByCategory = (categoryId) =>
-    PRODUCTS.filter((p) => p.category === categoryId);
+    getLiveProducts().filter((p) => p.category === categoryId);
 
 export const searchProducts = (query) => {
     const q = query.toLowerCase();
-    return PRODUCTS.filter(
+    return getLiveProducts().filter(
         (p) =>
             p.name.toLowerCase().includes(q) ||
             p.categoryName.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q)
     );
 };
+
+export { getLiveProducts as getProducts };
